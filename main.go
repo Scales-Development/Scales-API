@@ -1,29 +1,23 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"scares/scales-api/login"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 )
 
-type testdata struct {
-	ID string `json:"id"`
-	Name string `json:"name"`
-	Status string `json:"status"`
-}
-
-var testdatas = []testdata{
-	{ID: "1", Name: "Cattu", Status: "Denied" },
-	{ID: "2", Name: "Sourcetwo", Status: "Approved" },
-}
-
-func getDatas(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, testdatas)
-}
-
 func main() {
-	router := gin.Default()
-	router.GET("/testdatas", getDatas)
+	router := mux.NewRouter()
 
-	router.Run("localhost:3000")
+	router.HandleFunc("/login", login.LoginHandler).Methods("POST")
+	router.HandleFunc("/protected", login.ProtectedHandler).Methods("GET")
+
+	fmt.Println("Starting up the Scales API....")
+	err := http.ListenAndServe("localhost:4000", router)
+	if err != nil {
+		fmt.Println("An Unexpected error has occurred while starting up the API.", err)
+	}
+	fmt.Println("Server API Started. Listening on port 4000")
 }
